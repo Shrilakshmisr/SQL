@@ -1,51 +1,29 @@
-const mysql = require('mysql2');
-require('dotenv').config();
-
-// Create a connection to the database
-const connection = mysql.createConnection({
+console.log('Trying to connect with:');
+console.log({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  multipleStatements: true
+  database: process.env.DB_NAME
 });
 
-// Create the database and use it
-connection.connect((err) => {
-  if (err) throw err;
-  console.log('Connected to MySQL!');
 
-  const createDatabase = `CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME}; USE ${process.env.DB_NAME};`;
+const mysql = require('mysql2');
+require('dotenv').config();
 
-  const createTables = `
-    CREATE TABLE IF NOT EXISTS Users (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      name VARCHAR(255) NOT NULL,
-      email VARCHAR(255) NOT NULL UNIQUE
-    );
-    
-    CREATE TABLE IF NOT EXISTS Buses (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      busNumber VARCHAR(50) NOT NULL UNIQUE,
-      totalSeats INT NOT NULL,
-      availableSeats INT NOT NULL
-    );
-    
-    CREATE TABLE IF NOT EXISTS Bookings (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      seatNumber INT NOT NULL
-    );
-    
-    CREATE TABLE IF NOT EXISTS Payments (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      amountPaid DECIMAL(10, 2) NOT NULL,
-      paymentStatus VARCHAR(50) NOT NULL
-    );
-  `;
-
-  connection.query(createDatabase + createTables, (err, result) => {
-    if (err) throw err;
-    console.log('Database and tables created or already exist.');
-  });
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: 'W7301@jqir#',
+  database: 'bus_booking',
 });
 
-module.exports = connection;
+
+db.connect((err) => {
+  if (err) {
+    console.error('Database connection failed:', err.stack);
+    return;
+  }
+  console.log('✅ Connected to MySQL database');
+});
+
+module.exports = db;

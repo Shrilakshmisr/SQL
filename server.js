@@ -1,14 +1,19 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+require('dotenv').config();
+
+const userRoutes = require('./routes/userRoutes');
+const busRoutes = require('./routes/busRoutes');
+
 const app = express();
-const db = require('./db');
+const port = process.env.PORT || 3000;
 
-app.use(express.json());
+app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-  res.send('Bus Booking System API is running.');
-});
+// Routes
+app.use('/users', userRoutes);
+app.use('/buses', busRoutes);
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(port, () => {
+  console.log(`🚀 Server running at http://localhost:${port}`);
 });
