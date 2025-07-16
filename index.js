@@ -1,43 +1,14 @@
-const express=require('express')
-const mysql=require('mysql2');
-const app=express();
+const express = require('express');
+const app = express();
+const studentRoutes = require('./routes/studentRoutes'); // Correct path
 
-const connection=mysql.createConnection({
-    host:'localhost',
-    user:'root',
-    password:'W7301@jqir#',
-    database:'testdb'
-})
-
-connection.connect((err)=>{
-    if(err){
-        console.log(err);
-        return;
-    }
-
-    console.log("Conection has been created");
-
-    const creationQuery=`create table Students(
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(20),
-        email VARCHAR(20)
-    )`
-
-    connection.execute(creationQuery,(er)=>{
-        if(err){
-            console.log(err);
-            connection.end();
-            return;
-        }
-
-        console.log("Table is created")
-    })
-})
+app.use(express.json());
 
 app.get('/',(req,res)=>{
-    res.send('Hello world');
+  res.send('Hello world');
 })
+app.use('/students', studentRoutes); // Route setup
 
-app.listen(3000,(err)=>{
-    console.log("Server is running");
+app.listen(3000, (err) => {
+  console.log('Server started at http://localhost:3000');
 })
