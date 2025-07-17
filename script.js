@@ -1,69 +1,72 @@
+const API_URL = 'http://localhost:3000/expenses';
+const form = document.getElementById('expense-form');
+const list = document.getElementById('expense-list');
+
+let editMode = false;
 let editId = null;
 
-document.getElementById('userForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const user = {
-    name: document.getElementById('name').value,
-    email: document.getElementById('email').value,
-    phone: document.getElementById('phone').value
-  };
-
-  if (editId) {
-    await fetch(`/users/${editId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(user)
-    });
-    editId = null;
-    document.getElementById('submitBtn').textContent = 'Submit';
-  } else {
-    await fetch('/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(user)
-    });
-  }
-
-  document.getElementById('userForm').reset();
-  loadUsers();
+window.addEventListener('DOMContentLoaded', async () => {
+  const res = await fetch(API_URL);
+  const expenses = await res.json();
+  expenses.forEach(renderExpense);
 });
 
-async function loadUsers() {
-  const res = await fetch('/users');
-  const users = await res.json();
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-  const list = document.getElementById('userList');
-  list.innerHTML = '';
+  const amount = document.getElementById('amount').value;
+  const description = document.getElementById('description').value;
+  const category = document.getElementById('category').value;
 
-  users.forEach(user => {
-    const li = document.createElement('li');
+  const data = { amount, description, category };
 
-    const info = document.createElement('span');
-    info.textContent = `${user.name} - ${user.email} - ${user.phone}`;
+  if (editMode) {
+    await fetch(`${API_URL}/${editId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    document.getElementById(editId).remove();
+    editMode = false;
+    editId = null;
+  } else {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const expense = await res.json();
+    renderExpense(expense);
+  }
 
-    const editBtn = document.createElement('button');
-    editBtn.textContent = 'Edit';
-    editBtn.onclick = () => {
-      document.getElementById('name').value = user.name;
-      document.getElementById('email').value = user.email;
-      document.getElementById('phone').value = user.phone;
-      editId = user.id;
-      document.getElementById('submitBtn').textContent = 'Update';
-    };
+  form.reset();
+});
 
-    const delBtn = document.createElement('button');
-    delBtn.textContent = 'Delete';
-    delBtn.onclick = async () => {
-      await fetch(`/users/${user.id}`, { method: 'DELETE' });
-      loadUsers();
-    };
+function renderExpense(expense) {
+  const li = document.createElement('li');
+  li.className = 'list-group-item d-flex justify-content-between align-items-center';
+  li.id = expense.id;
 
-    li.appendChild(info);
-    li.appendChild(editBtn);
-    li.appendChild(delBtn);
-    list.appendChild(li);
-  });
+  li.innerHTML = `
+    ₹${expense.amount} - ${expense.description} [${expense.category}]
+    <div>
+      <button class="btn btn-sm btn-warning me-2" onclick="editExpense(${expense.id}, '${expense.amount}', '${expense.description}', '${expense.category}')">Edit</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteExpense(${expense.id})">Delete</button>
+    </div>
+  `;
+
+  list.appendChild(li);
 }
 
-window.onload = loadUsers;
+async function deleteExpense(id) {
+  await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+  document.getElementById(id).remove();
+}
+
+function editExpense(id, amount, description, category) {
+  document.getElementById('amount').value = amount;
+  document.getElementById('description').value = description;
+  document.getElementById('category').value = category;
+  editMode = true;
+  editId = id;
+}
