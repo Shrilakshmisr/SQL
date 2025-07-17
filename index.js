@@ -1,26 +1,16 @@
-const express=require('express')
-const db=require('./db-connection');
-const studentRoutes=require('../routes/studentsRoutes');
+const Student=require('./students');
+const IdentityCard=require('./identitycard');
+const department=require('./department');
 
-//models
-const StudentModel=require('../models/students');
+//one to one model
+Student.hasOne(IdentityCard);
+IdentityCard.belongsTo(Student);
 
-const app=express();
+//one to many
+department.hasMany(Student);
+Student.belongsTo(department);
 
-app.use(express.json());
-
-app.get('/',(req,res)=>{
-    res.send('Hello world');
-})
-
-app.use("/students", studentRoutes);
-
-db.sync({force:true}).then((err)=>{
-    app.listen(3000,(err)=>{
-    console.log("Server is running");
-    })
-
-}).catch((err)=>{
-    console.log(err);
-})
-
+module.exports={
+    Student,
+    IdentityCard
+}
