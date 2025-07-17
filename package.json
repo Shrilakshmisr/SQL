@@ -1,5 +1,5 @@
 {
-  "name": "expense_app",
+  "name": "meeting_management_app",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
