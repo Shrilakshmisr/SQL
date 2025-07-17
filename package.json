@@ -1,5 +1,5 @@
 {
-  "name": "utils",
+  "name": "association_bus_booking",
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {

@@ -1,25 +1,20 @@
-const Student=require('./students');
-const IdentityCard=require('./identitycard');
-const department=require('./department');
-const courses=require('./courses');
-const studentCourses=require('./studentCourses');
+const Sequelize = require('sequelize');
+const sequelize = new Sequelize('bus_booking', 'root', 'W7301@jqir#', {
+  host: 'localhost',
+  dialect: 'mysql'
+});
 
-//one to one model
-Student.hasOne(IdentityCard);
-IdentityCard.belongsTo(Student);
+const db = {};
+db.Sequelize = Sequelize;
+db.sequelize = sequelize;
 
-//one to many
-department.hasMany(Student);
-Student.belongsTo(department);
+db.User = require('./user')(sequelize, Sequelize.DataTypes);
+db.Bus = require('./bus')(sequelize, Sequelize.DataTypes);
+db.Booking = require('./booking')(sequelize, Sequelize.DataTypes);
 
-//many to many
-Student.belongsToMany(courses,{through:studentCourses});
-courses.belongsToMany(Student,{through:studentCourses});
+// Associations
+Object.values(db).forEach((model) => {
+  if (model.associate) model.associate(db);
+});
 
-
-module.exports={
-    Student,
-    IdentityCard,
-    courses,
-    studentCourses
-}
+module.exports = db;
